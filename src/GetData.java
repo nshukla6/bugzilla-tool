@@ -30,6 +30,7 @@ public class GetData extends HttpServlet {
 	private ResultSet resultSet=null;
 	private PreparedStatement preparedStatement=null;
 	private  Set<String> totalBugSet=new HashSet<String>();
+	private Set<String>branchs;
 	
 	
 	
@@ -76,6 +77,7 @@ public class GetData extends HttpServlet {
 		// TODO Auto-generated method stub
 		//response.getWriter().append("Served at: ").append(request.getContextPath());
 		System.out.println("inside service");
+		branchs=new HashSet<>();
 		String product=(String)request.getParameter("product");
 		String email=(String)request.getParameter("email");
 		String version=(String)request.getParameter("version");
@@ -84,6 +86,7 @@ public class GetData extends HttpServlet {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e1) {
 			// TODO Auto-generated catch block
+			System.out.println("***********class not found********");
 			e1.printStackTrace();
 		}
  	      try {
@@ -91,6 +94,7 @@ public class GetData extends HttpServlet {
 			    "jdbc:mysql://bz3-m-db3.eng.vmware.com:3306/bugzilla", "mts", "mts");
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
+			System.out.println("******DB not found**********");
 			e1.printStackTrace();
 		}
 		List<Bug>bugList=new ArrayList<Bug>();
@@ -100,27 +104,30 @@ public class GetData extends HttpServlet {
 			list = getBugList(queryAllBugs,product,email,version);
 			for (String bugNo : list) {
 				
+				
 			
 			
 			Bug bug=new Bug(bugNo);
+			List<String> childList=getChildList(bugNo);
 			
 			
 			
-			
+			bug.setBranchs(getCommitedBranch(bugNo));
 			bug.setBranchFilesMap(getCommitedBranchFiles(bugNo));
 			bug.setFilesCount(getAffectedFilesCount(bugNo));
-			bug.setParent(getChildList(bugNo).size()>0);
+			bug.setParent(childList.size()>0);
 			if(bug.isParent()){
-				List<String>childs=getChildList(bugNo);
-				List<Bug> childList=new ArrayList<Bug>();
+				List<String>childs=childList;
+				List<Bug> childBugs=new ArrayList<Bug>();
 				for (String ch : childs) {
 					Bug chBug=new Bug(ch);
 					chBug.setBranchFilesMap(getCommitedBranchFiles(ch));
 					chBug.setFilesCount(getAffectedFilesCount(ch));
-					chBug.setParent(getChildList(ch).size()>0);
-					childList.add(chBug);
+					//chBug.setParent(getChildList(ch).size()>0);
+					chBug.setBranchs(getCommitedBranch(ch));
+					childBugs.add(chBug);
 				}
-				bug.setChilds(childList);
+				bug.setChilds(childBugs);
 				
 				
 				
@@ -131,7 +138,9 @@ public class GetData extends HttpServlet {
 			}
 			con.close();
 			request.setAttribute("bugList", bugList);
-			RequestDispatcher dispatcher = request.getRequestDispatcher("result.jsp");  
+			request.setAttribute("branchs", branchs.toArray());
+			request.setAttribute("blength", branchs.toArray().length);
+			RequestDispatcher dispatcher = request.getRequestDispatcher("newHome.jsp");  
 			if (dispatcher != null){  
 			dispatcher.forward(request, response);  
 			}
@@ -252,7 +261,7 @@ public class GetData extends HttpServlet {
 			e.printStackTrace();
 		}
 	
-		 Pattern pattern = Pattern.compile("\\((\\d|\\d\\d|\\d\\d\\d)\\)");
+		 Pattern pattern = Pattern.compile("\\((\\d|\\d\\d)\\)");
 		 Matcher matcher = pattern.matcher(text);
 		 while (matcher.find()) {
 	            
@@ -307,7 +316,37 @@ public class GetData extends HttpServlet {
 		return map;
 		
 	}
+private Set<String>getCommitedBranch(String bug){
 	
+	String branch=null;
+		String text="";
+		try {
+			text = getText(bug);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String pattern1="... //depot/";
+		String pattern2="#";
+		String regexString = Pattern.quote(pattern1) + "(.*?)" + Pattern.quote(pattern2);
+		Pattern pattern=Pattern.compile(regexString);
+		Matcher matcher = pattern.matcher(text);
+		HashSet<String>set=new HashSet<>();
+		
+		
+		while (matcher.find()) {
+            
+             String[] arr = matcher.group(1).split("/");
+             
+            // System.out.println(arr[1]+"  "+arr[arr.length-1]);
+             branch=arr[1];
+             branchs.add(branch);
+             //map.put(arr[1], arr[arr.length-1]);
+             set.add(branch);
+          }
+		return set;
+		
+	}
 	
 
 }

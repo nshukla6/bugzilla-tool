@@ -25,15 +25,10 @@
             </tr>
             <c:forEach var="bug" items="${bugList}">
                 <tr>
-                    <td><c:out value="${bug.getBugNo()}" /></td>
-                    <td><c:out value="${bug.getFilesCount()}" /></td>
+                    <td><c:out value="${bug.bugNo}" /></td>
+                    <td><c:out value="${bug.filesCount}" /></td>
      				
-     				<td><c:forEach items="${bug.getBranchFilesMap()}" var="branchFiles">
-           				
-           				<c:out value="${branchFiles}"/><br><hr>
-           				
-     				</c:forEach>
-     				</td>
+     				<td><c:out value="${bug.branchFilesMap}" /></td>
 					
 					
 					
@@ -41,11 +36,11 @@
                     
                     
                     
-                    <td><c:forEach items="${bug.getChilds()}" var="child">
+                    <td><c:forEach items="${bug.childs}" var="child">
            				
-           				Bug <c:out value="${child.getBugNo()}"/><br>
-           				Branch-File <c:out value="${child.getBranchFilesMap()}"/><br>
-           				#Files-Commit <c:out value="${child.getFilesCount()}"/><br><br><hr>
+           				Bug <c:out value="${child.bugNo}"/><br>
+           				Branch-files <c:out value="${child.branchFilesMap}"/><br>
+           			    
            				
      				</c:forEach>
      				</td>

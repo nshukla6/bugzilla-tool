@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Bug {
 	private String bugNo;
@@ -8,9 +9,13 @@ public class Bug {
 	private List<Bug> childs;
 	private boolean isParent;
 	private Map<String,ArrayList<String>>branchFilesMap;
+	private Set<String>branchs;
 	
 	
 	
+	
+
+
 	Bug(String bugNo){
 		this.bugNo=bugNo;
 	}
@@ -44,6 +49,13 @@ public class Bug {
 	}
 	public void setParent(boolean isParent) {
 		this.isParent = isParent;
+	}
+	public Set<String>getBranchs() {
+		return branchs;
+	}
+
+	public void setBranchs(Set<String> branchs) {
+		this.branchs = branchs;
 	}
 
 	
