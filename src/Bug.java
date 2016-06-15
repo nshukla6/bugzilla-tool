@@ -10,10 +10,8 @@ public class Bug {
 	private boolean isParent;
 	private Map<String,ArrayList<String>>branchFilesMap;
 	private Set<String>branchs;
-	
-	
-	
-	
+	private Bug base;
+	private List<Bug>baseChilds;
 
 
 	Bug(String bugNo){
@@ -57,6 +55,27 @@ public class Bug {
 	public void setBranchs(Set<String> branchs) {
 		this.branchs = branchs;
 	}
+	
+	public Bug getBase() {
+		return base;
+	}
+
+
+
+	public void setBase(Bug base) {
+		this.base = base;
+	}
+
+	public List<Bug> getBaseChilds() {
+		return baseChilds;
+	}
+
+
+
+	public void setBaseChilds(List<Bug> baseChilds) {
+		this.baseChilds = baseChilds;
+	}
+
 
 	
 	

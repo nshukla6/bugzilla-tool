@@ -111,11 +111,27 @@ public class GetData extends HttpServlet {
 			List<String> childList=getChildList(bugNo);
 			
 			
-			
+			bug.setBase(getBase(bugNo));
 			bug.setBranchs(getCommitedBranch(bugNo));
 			bug.setBranchFilesMap(getCommitedBranchFiles(bugNo));
 			bug.setFilesCount(getAffectedFilesCount(bugNo));
 			bug.setParent(childList.size()>0);
+			
+			if(bug.getBase()!=null){
+				List<String>childs=getBaseChildList(bug.getBase().getBugNo());
+				List<Bug> childBugs=new ArrayList<Bug>();
+				for (String ch : childs) {
+					Bug chBug=new Bug(ch);
+					chBug.setBranchFilesMap(getCommitedBranchFiles(ch));
+					chBug.setFilesCount(getAffectedFilesCount(ch));
+					//chBug.setParent(getChildList(ch).size()>0);
+					chBug.setBranchs(getCommitedBranch(ch));
+					childBugs.add(chBug);
+				}
+				bug.setBaseChilds(childBugs);
+				
+				
+			}
 			if(bug.isParent()){
 				List<String>childs=childList;
 				List<Bug> childBugs=new ArrayList<Bug>();
@@ -347,6 +363,64 @@ private Set<String>getCommitedBranch(String bug){
 		return set;
 		
 	}
+
+private  Bug getBase(String bug) throws SQLException{
+    
+	String baseBug=null;
+	String baseQuery=new StringBuilder().append("SELECT base from related where child=?").toString();
+	
+    preparedStatement = con.prepareStatement(baseQuery);
+    
+	
+		
+		preparedStatement.setString(1,bug);
+        resultSet = preparedStatement.executeQuery();
+        
+        while (resultSet.next()) {
+  	      
+  	      baseBug = resultSet.getString("base");
+  	      
+  	      
+  	      
+  	    }
+        
+	preparedStatement=null;
+	resultSet=null;
+	return new Bug(baseBug);
+	
+	
+}
+private  List<String> getBaseChildList(String bug) throws SQLException{
+    
+	   
+	String childQuery=new StringBuilder().append("SELECT child from related where base=?").toString();
+	
+    preparedStatement = con.prepareStatement(childQuery);
+    
+	
+		List<String> childBugList=new ArrayList<>();
+		preparedStatement.setString(1,bug);
+        resultSet = preparedStatement.executeQuery();
+        
+        while (resultSet.next()) {
+  	      
+  	      String bugID = resultSet.getString("child");
+  	      childBugList.add(bugID);
+  	      
+  	      
+  	    }
+        
+        
+        
+		
+	
+	preparedStatement=null;
+	resultSet=null;
+	return childBugList;
+	
+	
+}
+
 	
 
 }

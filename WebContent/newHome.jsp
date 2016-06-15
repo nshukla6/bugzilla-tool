@@ -13,6 +13,8 @@
             <caption><h2>Bug Details</h2></caption>
             <tr>
                 <th>Bug</th>
+                <th>Base</th>
+                
                 <c:forEach items="${branchs}" var="branch">		
                  <th><c:out value="${branch}"/></th>
      				</c:forEach>
@@ -22,23 +24,47 @@
                 <tr>
                
                     <td><c:out value="${bug.bugNo}" /></td>
+                    <td><c:out value="${bug.base.bugNo}" /></td>
                
                
                
              <c:forEach items="${branchs}" var="branch">
              <td>
              
+             
              <c:forEach items="${bug.childs}" var="child">
         
              <c:choose>
     <c:when test="${child.branchs.contains(branch)}">
-       <c:out value="${child.bugNo}"/>
+        <c:out value="${child.bugNo}"/>
     </c:when>
     
     
        </c:choose>
 			
 			</c:forEach>
+			
+			
+			
+<c:forEach items="${bug.baseChilds}" var="bchild">
+        
+             <c:choose>
+    <c:when test="${bchild.branchs.contains(branch)&& bchild.bugNo!=bug.bugNo}">
+        <c:out value="${bchild.bugNo}"/>
+    </c:when>
+    
+    
+       </c:choose>
+			
+			</c:forEach>
+			
+<c:choose>
+<c:when test="${bug.base.branchs.contains(branch)}">
+       <c:out value="${bug.base.bugNo}" />
+    </c:when>
+    </c:choose>
+					
+			
 			<c:choose>
 <c:when test="${bug.branchs.contains(branch)}">
        <c:out value="${bug.bugNo}" />
